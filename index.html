@@ -1,1 +1,188 @@
 
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PATRIÓTICO TV - M3U / M3U8 / ASTRA ESTABLE</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#0A1628;color:white;font-family:Arial,sans-serif;text-align:center;padding-bottom:30px}
+header{padding:18px 10px 5px}
+h1{margin:0;color:#FFD700;font-size:46px}
+.frase{color:#FF6B6B;font-weight:bold}
+.sub{color:#B0C4DE;font-size:13px}
+.caja{max-width:1000px;margin:auto;padding:0 12px}
+.panel{background:#132A4D;border:1px solid #222;border-radius:14px;padding:14px;margin:12px 0;text-align:left}
+.panel h3{margin:0 0 8px;color:#FFD700}
+input[type=text]{width:100%;padding:13px;border-radius:10px;border:1px solid #333;background:#0A1628;color:white;font-size:15px}
+.btn{background:#FFD700;color:#000;border:none;padding:12px 18px;border-radius:10px;font-weight:bold;font-size:15px;cursor:pointer;margin:6px 4px 0 0}
+.btn2{background:#222;color:white;border:1px solid #FFD700;padding:12px 14px;border-radius:10px;cursor:pointer;margin:6px 4px 0 0}
+.btn.activo{outline:2px solid white}
+#playerWrap{position:relative;background:#000;border:2px solid #FFD700;border-radius:12px;overflow:hidden}
+video{width:100%;display:block;background:#000;min-height:260px}
+#calidad{position:absolute;top:10px;right:10px;background:rgba(0,0,0,.7);padding:6px 10px;border-radius:20px;font-size:12px;border:1px solid #FFD700}
+#estadoPlayer{position:absolute;bottom:10px;left:10px;background:rgba(0,0,0,.7);padding:6px 10px;border-radius:20px;font-size:12px}
+.punto{width:9px;height:9px;border-radius:50%;display:inline-block;background:#ff4444}
+.punto.on{background:#00ff88}
+#ahora{color:#FFD700;font-weight:bold;margin:8px 0}
+.buscar{width:100%;padding:12px;border-radius:10px;border:1px solid #333;background:#0A1628;color:white;margin:10px 0}
+.cats{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+.cats button{background:#132A4D;color:white;border:1px solid #FFD700;padding:9px 15px;border-radius:20px;cursor:pointer}
+.cats button.activo{background:#FFD700;color:#0A1628;font-weight:bold}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:10px}
+@media(min-width:700px){.grid{grid-template-columns:repeat(4,1fr)}}
+.tarjeta{background:#0F2240;border-radius:12px;padding:12px;cursor:pointer;border:1px solid #333;text-align:left;word-break:break-word}
+.tarjeta b{font-size:14px;display:block}
+.tarjeta span{font-size:12px;color:#B0C4DE}
+.tarjeta.activa{border:2px solid #FFD700;background:#1A3355}
+textarea{width:100%;height:100px;background:#0A1628;color:#8aff8a;border:1px solid #333;border-radius:10px;padding:10px;font-size:13px}
+small{color:#B0C4DE}
+.barra{height:6px;background:#222;border-radius:10px;overflow:hidden;margin-top:6px}
+#barraBuffer{height:100%;width:0%;background:#FFD700;transition:width .3s}
+</style>
+</head>
+<body>
+<header><h1>PATRIÓTICO</h1><div class="frase">Quién en la lucha suma y sigue</div><div class="sub">PATRIÓTICO TV • M3U / M3U8 / ASTRA • Transmisión Estable para Hisense</div></header>
+<div class="caja">
+<div class="panel"><h3>1. INGRESAR LISTA M3U / M3U8 / ASTRA</h3>
+<input type="text" id="urlLista" placeholder="Pega tu URL M3U / M3U8 / ASTRA...">
+<br><button class="btn" onclick="cargarDesdeURL()">▶ CARGAR DESDE URL</button>
+<button class="btn2" onclick="document.getElementById('file').click()">📁 SUBIR .M3U</button>
+<input type="file" id="file" accept=".m3u,.m3u8,.txt" style="display:none" onchange="cargarArchivo(event)">
+<p><small>O pega contenido M3U:</small></p><textarea id="textoM3U" placeholder="#EXTM3U&#10;#EXTINF:-1,Canal 1&#10;http://..."></textarea>
+<br><button class="btn" onclick="cargarDesdeTexto()">CARGAR DESDE TEXTO</button>
+<button class="btn2" onclick="cargarDemo()">DEMO ESTABLE</button>
+<button class="btn2" onclick="limpiar()">🗑 LIMPIAR</button>
+<p id="estado" style="color:#FFD700;font-weight:bold">Esperando lista...</p>
+</div>
+<div class="panel"><h3>2. REPRODUCTOR ESTABLE</h3>
+<div id="playerWrap">
+<video id="video" controls playsinline preload="auto" crossorigin="anonymous"></video>
+<div id="calidad"><span class="punto" id="punto"></span> <span id="txtCalidad">SIN SEÑAL</span></div>
+<div id="estadoPlayer">Listo</div>
+</div>
+<div id="ahora">▶ Toca un canal para verlo</div>
+<div class="barra"><div id="barraBuffer"></div></div>
+<div><small>Buffer: <span id="txtBuffer">0s</span> • Si tu Astra se corta, reconecta solo en 3s</small></div>
+<button class="btn2" onclick="reintentar()">↻ RECONECTAR</button>
+<button class="btn2" onclick="calidad('auto')">AUTO (Recomendado)</button>
+<button class="btn2" onclick="calidad('alta')">ALTA</button>
+<button class="btn2" onclick="calidad('baja')">BAJA - Para internet lento</button>
+<button class="btn2" onclick="abrirExterno()">↗ Externo</button>
+</div>
+<div class="panel"><h3>3. CANALES</h3>
+<input class="buscar" id="buscar" placeholder="🔍 Buscar canal..." oninput="mostrar()">
+<div class="cats" id="cats"></div>
+<div style="margin:8px 0"><b id="total">0 canales</b> • <span id="catActual">Todas</span></div>
+<div class="grid" id="grid"></div>
+</div>
+<p><small>Configuración de estabilidad: Buffer 30s • Reintento automático • HLS.js optimizado para TV • Guardado local</small></p>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+<script>
+var canales=[]; var categoriaActual='Todas'; var video=document.getElementById('video'); var hlsActual=null; var canalActual=null; var canalIdx=-1; var intentos=0; var timerBuffer=null;
+function guardar(){ try{localStorage.setItem('patriotico_m3u',JSON.stringify(canales));}catch(e){} }
+function parsearM3U(texto){
+var lineas=texto.split(/\r?\n/); var lista=[]; var grupo='General'; var nombre=''; var logo='';
+for(var i=0;i<lineas.length;i++){ var l=lineas[i].trim(); if(!l) continue;
+if(l.startsWith('#EXTINF')){ var mg=l.match(/group-title="([^"]+)"/); if(mg) grupo=mg[1]; var ml=l.match(/tvg-logo="([^"]+)"/); logo=ml?ml[1]:''; var partes=l.split(','); nombre=(partes[partes.length-1]||'Canal').trim(); }
+else if(l.startsWith('http')||l.startsWith('rtmp')||l.startsWith('rtsp')){ if(nombre) lista.push({nombre:nombre,url:l,grupo:grupo,logo:logo}); nombre=''; logo=''; }
+} return lista;
+}
+function mostrar(){
+var filtro=document.getElementById('buscar').value.toLowerCase();
+var cats=['Todas']; canales.forEach(function(c){ if(cats.indexOf(c.grupo)===-1) cats.push(c.grupo); });
+var hc=''; cats.forEach(function(c){ hc+='<button class="'+(c===categoriaActual?'activo':'')+'" onclick="elegirCat(\''+c.replace(/'/g,'')+'\')">'+c+'</button>'; });
+document.getElementById('cats').innerHTML=hc;
+var html=''; var count=0;
+canales.forEach(function(c,idx){ if(categoriaActual!=='Todas'&&c.grupo!==categoriaActual) return; if(filtro&&c.nombre.toLowerCase().indexOf(filtro)===-1) return; count++;
+html+='<div class="tarjeta '+(idx===canalIdx?'activa':'')+'" onclick="reproducir('+idx+')"><div style="font-size:26px">▶</div><b>'+c.nombre+'</b><span>'+c.grupo+'</span></div>';
+});
+document.getElementById('grid').innerHTML=html||'<p>No hay canales aquí.</p>';
+document.getElementById('total').innerHTML=count+' mostrados / '+canales.length+' total';
+document.getElementById('catActual').innerHTML=categoriaActual;
+}
+function elegirCat(c){ categoriaActual=c; mostrar(); }
+function setEstado(txt,color){ document.getElementById('estadoPlayer').innerHTML=txt; document.getElementById('txtCalidad').innerHTML=txt; var p=document.getElementById('punto'); p.className='punto'+(color?' on':''); }
+function reproducir(idx){
+canalIdx=idx; canalActual=canales[idx]; intentos=0;
+document.getElementById('ahora').innerHTML='▶ Reproduciendo: '+canalActual.nombre+' • '+canalActual.grupo;
+mostrar();
+if(hlsActual){ try{hlsActual.destroy();}catch(e){} hlsActual=null; }
+video.removeAttribute('src'); video.load();
+var url=canalActual.url;
+setEstado('CONECTANDO...',false);
+if(window.Hls && Hls.isSupported()){
+hlsActual=new Hls({
+maxBufferLength: 60,
+maxMaxBufferLength: 120,
+maxBufferSize: 60*1000*1000,
+maxBufferHole: 1,
+highBufferWatchdogPeriod: 2,
+nudgeOffset: 0.2,
+nudgeMaxRetry: 10,
+maxFragLookUpTolerance: 0.5,
+liveSyncPosition: true,
+liveMaxLatencyDuration: 8,
+enableWorker: true,
+lowLatencyMode: false,
+manifestLoadingMaxRetry: 5,
+manifestLoadingRetryDelay: 1000,
+levelLoadingMaxRetry: 6,
+levelLoadingRetryDelay: 1000,
+fragLoadingMaxRetry: 6,
+fragLoadingRetryDelay: 1000,
+startLevel: -1,
+abrEwmaDefaultEstimate: 3000000,
+abrBandWidthFactor: 0.9,
+abrBandWidthUpFactor: 0.7
+});
+hlsActual.loadSource(url);
+hlsActual.attachMedia(video);
+hlsActual.on(Hls.Events.MANIFEST_PARSED, function(){ video.play().catch(function(){}); });
+hlsActual.on(Hls.Events.LEVEL_SWITCHED, function(e,d){ var lvl=hlsActual.levels[d.level]; if(lvl) document.getElementById('txtCalidad').innerHTML='EN VIVO • '+lvl.height+'p • '+Math.round(lvl.bitrate/1000)+' kbps'; });
+hlsActual.on(Hls.Events.ERROR, function(e,d){
+if(!d.fatal){ return; }
+if(intentos>=3){ setEstado('ERROR - TOCA RECONECTAR',false); return; }
+intentos++;
+setEstado('RECONECTANDO '+intentos+'/3...',false);
+setTimeout(function(){ if(canalActual) reproducir(canalIdx); },3000);
+});
+} else if(video.canPlayType('application/vnd.apple.mpegurl')){
+video.src=url; video.play().catch(function(){});
+} else {
+video.src=url; video.play().catch(function(){ setEstado('TOCA PLAY',false); });
+}
+video.onplaying=function(){ setEstado('EN VIVO • ESTABLE',true); };
+video.onwaiting=function(){ setEstado('CARGANDO BUFFER...',false); };
+if(timerBuffer) clearInterval(timerBuffer);
+timerBuffer=setInterval(function(){
+try{
+if(video.buffered.length>0){ var buf=video.buffered.end(video.buffered.length-1)-video.currentTime; document.getElementById('txtBuffer').innerHTML=buf.toFixed(1)+'s'; document.getElementById('barraBuffer').style.width=Math.min(100,buf*3)+'%'; }
+}catch(e){}
+},500);
+window.scrollTo({top:document.getElementById('playerWrap').offsetTop-10,behavior:'smooth'});
+}
+function reintentar(){ if(canalActual) reproducir(canalIdx); else alert('Primero elige un canal'); }
+function calidad(modo){
+if(!hlsActual){ alert('Cambia de canal para aplicar calidad'); return; }
+if(modo==='auto'){ hlsActual.currentLevel=-1; }
+if(modo==='alta'){ var max=0, idx=0; hlsActual.levels.forEach(function(l,i){ if(l.height>max){max=l.height; idx=i;} }); hlsActual.currentLevel=idx; }
+if(modo==='baja'){ var min=9999, idx2=0; hlsActual.levels.forEach(function(l,i){ if(l.height<min){min=l.height; idx2=i;} }); hlsActual.currentLevel=idx2; }
+}
+function cargarDesdeURL(){
+var url=document.getElementById('urlLista').value.trim(); if(!url){alert('Pega tu URL');return;}
+document.getElementById('estado').innerHTML='Cargando lista...';
+fetch(url).then(function(r){return r.text();}).then(function(t){ canales=parsearM3U(t); if(canales.length===0){document.getElementById('estado').innerHTML='⚠ URL sin canales';return;} categoriaActual='Todas'; guardar(); mostrar(); document.getElementById('estado').innerHTML='✅ '+canales.length+' canales cargados'; }).catch(function(){ document.getElementById('estado').innerHTML='⚠ CORS bloqueó la URL. Usa SUBIR .M3U o PEGAR TEXTO, es lo estable en Hisense.'; });
+}
+function cargarArchivo(e){ var f=e.target.files[0]; if(!f) return; var r=new FileReader(); r.onload=function(){ canales=parsearM3U(r.result); categoriaActual='Todas'; guardar(); mostrar(); document.getElementById('estado').innerHTML='✅ '+canales.length+' canales'; }; r.readAsText(f); }
+function cargarDesdeTexto(){ var t=document.getElementById('textoM3U').value; if(!t.trim()){alert('Pega el M3U');return;} canales=parsearM3U(t); categoriaActual='Todas'; guardar(); mostrar(); document.getElementById('estado').innerHTML='✅ '+canales.length+' canales'; }
+function cargarDemo(){ var demo='#EXTM3U\n#EXTINF:-1 group-title="Cine",Cine Demo Estable\nhttps://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8\n#EXTINF:-1 group-title="Western",Western Demo\nhttps://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8\n#EXTINF:-1 group-title="Dibujos Retro",Dibujos Demo\nhttps://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8'; canales=parsearM3U(demo); categoriaActual='Todas'; guardar(); mostrar(); document.getElementById('estado').innerHTML='✅ Demo: '+canales.length+' canales'; }
+function limpiar(){ canales=[]; guardar(); mostrar(); document.getElementById('estado').innerHTML='Lista limpia'; }
+function abrirExterno(){ if(!canalActual){alert('Elige un canal');return;} window.open(canalActual.url,'_blank'); }
+try{ var g=localStorage.getItem('patriotico_m3u'); if(g){ canales=JSON.parse(g); document.getElementById('estado').innerHTML='✅ Lista guardada: '+canales.length+' canales'; } }catch(e){}
+mostrar();
+</script>
+</body>
+</html>
