@@ -1,1 +1,107 @@
-
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PATRIÓTICO TV</title>
+<style>
+body{margin:0;background:#0A1628;color:white;font-family:Arial,sans-serif;text-align:center}
+header{padding:25px 10px}
+h1{margin:0;color:#FFD700;font-size:48px}
+.frase{color:#FF6B6B;font-size:18px;font-weight:bold;margin-top:5px}
+.sub{color:#B0C4DE;font-size:13px}
+.menu{padding:10px}
+.menu button{background:#132A4D;color:white;border:1px solid #FFD700;padding:12px 18px;border-radius:20px;margin:4px;font-size:16px}
+.menu button.activo{background:#FFD700;color:#0A1628;font-weight:bold}
+.caja{max-width:900px;margin:10px auto;padding:0 12px}
+.hero{border:2px solid #FFD700;border-radius:12px;overflow:hidden;background:#000;padding:15px}
+.hero h2{margin:5px 0}
+video{width:100%;background:black;border-radius:10px}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:15px}
+@media(min-width:600px){.grid{grid-template-columns:repeat(4,1fr)}}
+.tarjeta{background:#132A4D;border-radius:10px;padding:12px;cursor:pointer;border:1px solid #333}
+.tarjeta b{display:block;font-size:14px;margin-top:5px}
+.tarjeta span{font-size:12px;color:#B0C4DE}
+.tarjeta:hover{border-color:#FFD700}
+</style>
+</head>
+<body>
+<header>
+<h1>PATRIÓTICO</h1>
+<div class="frase">Quién en la lucha suma y sigue</div>
+<div class="sub">PATRIÓTICO TV - Web de Streaming</div>
+</header>
+<div class="menu">
+<button id="b-cine" class="activo" onclick="mostrar('cine')">Cine</button>
+<button id="b-series" onclick="mostrar('series')">Series Retro</button>
+<button id="b-dibujos" onclick="mostrar('dibujos')">Dibujos Retro</button>
+<button id="b-western" onclick="mostrar('western')">Mundo Western</button>
+</div>
+<div class="caja">
+<div class="hero">
+<h2 id="tituloHero">Cine Estelar - 21:00</h2>
+<p>Hoy - Estreno - Western</p>
+<video id="video" controls playsinline preload="metadata">
+<source src="https://www.w3schools.com/html/mov_bbb.mp4" type="video/mp4">
+Tu navegador no soporta video.
+</video>
+<p id="ahora">▶ Toca un título abajo para verlo</p>
+</div>
+<h3 id="tituloLista" style="text-align:left">Cine</h3>
+<div class="grid" id="grid"></div>
+</div>
+<p style="color:#B0C4DE;font-size:13px">PATRIÓTICO TV 2026 - GitHub + Hisense</p>
+<script>
+var DATOS = {
+cine: [
+{nombre:"Cine - El Pacto del Desierto", url:"https://www.w3schools.com/html/mov_bbb.mp4"},
+{nombre:"Cine - Honor y Bandera", url:"https://www.w3schools.com/html/mov_bbb.mp4"},
+{nombre:"Cine - Frontera Norte", url:"https://www.w3schools.com/html/mov_bbb.mp4"},
+{nombre:"Cine - Valientes 1978", url:"https://www.w3schools.com/html/mov_bbb.mp4"}
+],
+series: [
+{nombre:"Series - Los Caminantes", url:"https://www.w3schools.com/html/mov_bbb.mp4"},
+{nombre:"Series - Policias del 85", url:"https://www.w3schools.com/html/mov_bbb.mp4"},
+{nombre:"Series - Cronicas de la Pampa", url:"https://www.w3schools.com/html/mov_bbb.mp4"},
+{nombre:"Series - Codigo Sur", url:"https://www.w3schools.com/html/mov_bbb.mp4"}
+],
+dibujos: [
+{nombre:"Dibujos - Aventuras de Juanito", url:"https://www.w3schools.com/html/mov_bbb.mp4"},
+{nombre:"Dibujos - Pajarito Valiente", url:"https://www.w3schools.com/html/mov_bbb.mp4"},
+{nombre:"Dibujos - El Zorro Andino", url:"https://www.w3schools.com/html/mov_bbb.mp4"},
+{nombre:"Dibujos - Piratas del Rio", url:"https://www.w3schools.com/html/mov_bbb.mp4"}
+],
+western: [
+{nombre:"Western - Duelo al Alba", url:"https://www.w3schools.com/html/mov_bbb.mp4"},
+{nombre:"Western - Ley de la Pradera", url:"https://www.w3schools.com/html/mov_bbb.mp4"},
+{nombre:"Western - Caravana al Oeste", url:"https://www.w3schools.com/html/mov_bbb.mp4"},
+{nombre:"Western - El Ultimo Sheriff", url:"https://www.w3schools.com/html/mov_bbb.mp4"}
+]
+};
+var catActual = 'cine';
+var video = document.getElementById('video');
+function mostrar(cat){
+catActual = cat;
+var titulos = {cine:'Cine', series:'Series Retro', dibujos:'Dibujos Retro', western:'Mundo Western'};
+document.getElementById('tituloLista').innerHTML = titulos[cat];
+document.getElementById('tituloHero').innerHTML = titulos[cat] + ' - PATRIOTICO TV';
+var botones = ['cine','series','dibujos','western'];
+for(var i=0;i<botones.length;i++){
+document.getElementById('b-'+botones[i]).className = (botones[i]===cat ? 'activo' : '');
+}
+var html = '';
+for(var j=0;j<DATOS[cat].length;j++){
+html += '<div class="tarjeta" onclick="ver('+j+')"><div style="font-size:32px">▶</div><b>'+DATOS[cat][j].nombre+'</b><span>Ver ahora</span></div>';
+}
+document.getElementById('grid').innerHTML = html;
+}
+function ver(idx){
+var item = DATOS[catActual][idx];
+video.src = item.url;
+video.play();
+document.getElementById('ahora').innerHTML = '▶ Reproduciendo: ' + item.nombre;
+}
+mostrar('cine');
+</script>
+</body>
+</html>
